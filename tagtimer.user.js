@@ -29,6 +29,8 @@
 // @match        *://yukkuri.shiteitte.net/users/*
 // @match        *://cos.booru.nl/users/*
 // @match        *://cos.lycore.co/users/*
+// @downloadURL  https://github.com/CommentaryRequest/booruscripts/raw/refs/heads/main/tagtimer.user.js
+// @updateURL    https://github.com/CommentaryRequest/booruscripts/raw/refs/heads/main/tagtimer.user.js
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=donmai.us
 // @grant        GM_addStyle
 // ==/UserScript==
