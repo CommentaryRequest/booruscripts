@@ -58,7 +58,7 @@ const PROFILE_USER_LINK = document.querySelector("h1 a.user");
 const UPLOAD_PAGE_REGEX = /\/uploads\/\d+(\/assets\/\d+)?/;
 const DB_NAME = "boorutagtimer";
 //const DB_NAME = "pisstest";
-const ENABLE_DEBUG_LOG = true;
+const ENABLE_DEBUG_LOG = false;
 const DESTROY_TEMP_SAVE = true; // Only leave this off for debugging
 const DEFAULT_SETTINGS = {
     check1up: "true",
