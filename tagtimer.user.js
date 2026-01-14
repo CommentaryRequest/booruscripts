@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         tag timer
 // @namespace    Daniel Booru
-// @version      1.0
+// @version      1.1
 // @description  See how fast you tag your danbooru uploads!
 // @author       Commentary Request
 // @match        *://danbooru.donmai.us/uploads/*
@@ -58,7 +58,7 @@ const PROFILE_USER_LINK = document.querySelector("h1 a.user");
 const UPLOAD_PAGE_REGEX = /\/uploads\/\d+(\/assets\/\d+)?/;
 const DB_NAME = "boorutagtimer";
 //const DB_NAME = "pisstest";
-const ENABLE_DEBUG_LOG = false;
+const ENABLE_DEBUG_LOG = true;
 const DESTROY_TEMP_SAVE = true; // Only leave this off for debugging
 const DEFAULT_SETTINGS = {
     check1up: "true",
@@ -84,11 +84,18 @@ const MODAL_LAYOUT = `
     <div id="tag-timer-modal-stats-inner">
       <div id="summary">
         <p>Total results recorded: <span id="tag-timer-total-results" class="tag-timer-summary-value"></span></p>
+        <h2>All-time stats:</h2>
         <p>Total time: <span id="tag-timer-total-time" class="tag-timer-summary-value"></span></p>
         <p>Average speed: <span id="tag-timer-avg-speed" class="tag-timer-summary-value"></span> tags per second</p>
         <p>Average time: <span id="tag-timer-avg-time" class="tag-timer-summary-value"></span></p>
-        <p>Fastest time: <a id="tag-timer-fastest-time-link" class="dtext-link dtext-id-link dtext-post-id-link"></a> <span id="tag-timer-fastest-time-time" class="tag-timer-summary-value"></span> (<span id="tag-timer-fastest-time-speed" class="tag-timer-summary-value"></span> tags per second)</p>
-        <p>Slowest time: <a id="tag-timer-slowest-time-link" class="dtext-link dtext-id-link dtext-post-id-link"></a> <span id="tag-timer-slowest-time-time" class="tag-timer-summary-value"></span> (<span id="tag-timer-slowest-time-speed" class="tag-timer-summary-value"></span> tags per second)</p>
+        <p>Fastest post: <a id="tag-timer-fastest-time-link" class="dtext-link dtext-id-link dtext-post-id-link"></a> <span id="tag-timer-fastest-time-time" class="tag-timer-summary-value"></span> (<span id="tag-timer-fastest-time-speed" class="tag-timer-summary-value"></span> tags per second)</p>
+        <p>Slowest post: <a id="tag-timer-slowest-time-link" class="dtext-link dtext-id-link dtext-post-id-link"></a> <span id="tag-timer-slowest-time-time" class="tag-timer-summary-value"></span> (<span id="tag-timer-slowest-time-speed" class="tag-timer-summary-value"></span> tags per second)</p>
+        <h2>Last <input id="tag-timer-recent-days" value="7" min="0"> days: <a href="#" class="button-primary" id="tag-timer-recent-refresh">Refresh</a></h2>
+        <p>Total time: <span id="tag-timer-total-time-recent" class="tag-timer-summary-value"></span></p>
+        <p>Average speed: <span id="tag-timer-avg-speed-recent" class="tag-timer-summary-value"></span> tags per second</p>
+        <p>Average time: <span id="tag-timer-avg-time-recent" class="tag-timer-summary-value"></span></p>
+        <p>Fastest post: <a id="tag-timer-fastest-recent-time-link" class="dtext-link dtext-id-link dtext-post-id-link"></a> <span id="tag-timer-fastest-recent-time-time" class="tag-timer-summary-value"></span> (<span id="tag-timer-fastest-recent-time-speed" class="tag-timer-summary-value"></span> tags per second)</p>
+        <p>Slowest post: <a id="tag-timer-slowest-recent-time-link" class="dtext-link dtext-id-link dtext-post-id-link"></a> <span id="tag-timer-slowest-recent-time-time" class="tag-timer-summary-value"></span> (<span id="tag-timer-slowest-recent-time-speed" class="tag-timer-summary-value"></span> tags per second)</p>
       </div>
       <hr>
       <table id="tag-timer-posts-table" class="striped">
@@ -198,6 +205,10 @@ const CSS = `
 
 #tag-timer-modal-settings label {
   font-weight: bold;
+}
+
+#tag-timer-recent-days {
+  width: 3em;
 }
 `;
 
@@ -373,6 +384,18 @@ function sortTable(table, attr, asc = true)
     tbody.append(...rows);
 }
 
+async function recentPostId(days)
+{
+    const res = await fetch(`/posts.json?tags=age:${days}d`);
+    if (!res.ok) {
+        throw new Error("failed to fetch recent post id");
+    }
+    const data = await res.json();
+    const id = data[0].id;
+    dlog(`Recent post ID for ${days} days: ${id}`);
+    return id;
+}
+
 // ===================================================
 // Classes
 // ===================================================
@@ -545,7 +568,7 @@ class ResultsStorage
         });
     }
 
-    listResults()
+    listResults(minPostId = 0)
     {
         dlog("List all results");
         return new Promise((resolve, reject) => {
@@ -557,7 +580,9 @@ class ResultsStorage
             cursorRequest.onsuccess = e => {
                 const cursor = e.target.result;
                 if (cursor) {
-                    allItems.push(cursor.value);
+                    if (cursor.value.postId >= minPostId) {
+                        allItems.push(cursor.value);
+                    }
                     cursor.continue();
                 } else {
                     resolve(allItems);
@@ -906,6 +931,12 @@ async function resetData()
     }
 }
 
+async function populateRecentStats()
+{
+    const resultsRecent = await gDB.listResults(await recentPostId(document.querySelector("#tag-timer-recent-days").value));
+    populateStatsSection(resultsRecent, "total-time-recent", "avg-speed-recent", "avg-time-recent", "fastest-recent-time", "slowest-recent-time");
+}
+
 function buildModal()
 {
     const link = document.createElement("a");
@@ -927,6 +958,7 @@ function buildModal()
     modalContainer.querySelector("#tag-timer-modal-close").addEventListener("click", hideModal);
     document.querySelector("#tag-timer-modal-settings-button").addEventListener("click", switchToSettings);
     document.querySelector("#tag-timer-modal-stats-button").addEventListener("click", switchToStats);
+    document.querySelector("#tag-timer-recent-refresh").addEventListener("click", populateRecentStats);
     document.querySelector("#tag-timer-setting-check1up").addEventListener("change", e => writeSetting("check1up", e.target.checked));
     document.querySelector("#tag-timer-setting-mintags").addEventListener("input", e => writeSetting("minTags", e.target.value));
     document.querySelector("#tag-timer-setting-show-timer").addEventListener("change", e => writeSetting("showTimer", e.target.checked));
@@ -943,30 +975,28 @@ function buildModal()
     });
 }
 
-function populateStats(results)
+function populateStatsSection(results, totalTime, avgSpeed, avgTime, fastestTime, slowestTime)
 {
-    if (results.length == 0) {
-        document.querySelector("#tag-timer-modal-stats-inner").style.display = "none";
-        document.querySelector("#tag-timer-modal-stats-empty").style.display = "block";
-        return;
-    }
-
     const finishTimeSum = fieldSum(results, "finishTime");
     const fastestResult = fieldMin(results, "finishTime");
     const slowestResult = fieldMax(results, "finishTime");
 
-    document.querySelector("#tag-timer-total-results").innerText = results.length;
-    document.querySelector("#tag-timer-total-time").innerText = getTimeString(finishTimeSum);
-    document.querySelector("#tag-timer-avg-speed").innerText = (fieldSum(results, "tagsPerSecond") / results.length).toFixed(3);
-    document.querySelector("#tag-timer-avg-time").innerText = getTimeString(finishTimeSum / results.length);
-    document.querySelector("#tag-timer-fastest-time-time").innerText = getTimeString(fastestResult.result.finishTime);
-    document.querySelector("#tag-timer-fastest-time-speed").innerText = fastestResult.result.tagsPerSecond.toFixed(3);
-    document.querySelector("#tag-timer-slowest-time-time").innerText = getTimeString(slowestResult.result.finishTime);
-    document.querySelector("#tag-timer-slowest-time-speed").innerText = slowestResult.result.tagsPerSecond.toFixed(3);
+    document.querySelector(`#tag-timer-${totalTime}`).innerText = getTimeString(finishTimeSum);
+    document.querySelector(`#tag-timer-${avgSpeed}`).innerText = (fieldSum(results, "tagsPerSecond") / results.length).toFixed(3);
+    document.querySelector(`#tag-timer-${avgTime}`).innerText = getTimeString(finishTimeSum / results.length);
+    document.querySelector(`#tag-timer-${fastestTime}-time`).innerText = getTimeString(fastestResult.result.finishTime);
+    document.querySelector(`#tag-timer-${fastestTime}-speed`).innerText = fastestResult.result.tagsPerSecond.toFixed(3);
+    document.querySelector(`#tag-timer-${slowestTime}-time`).innerText = getTimeString(slowestResult.result.finishTime);
+    document.querySelector(`#tag-timer-${slowestTime}-speed`).innerText = slowestResult.result.tagsPerSecond.toFixed(3);
 
-    populatePostLink(document.querySelector("#tag-timer-fastest-time-link"), fastestResult.postId);
-    populatePostLink(document.querySelector("#tag-timer-slowest-time-link"), slowestResult.postId);
+    populatePostLink(document.querySelector(`#tag-timer-${fastestTime}-link`), fastestResult.postId);
+    populatePostLink(document.querySelector(`#tag-timer-${slowestTime}-link`), slowestResult.postId);
 
+    Danbooru.Post.initialize_links();
+}
+
+function populateStatsTable(results)
+{
     const table = document.querySelector("#tag-timer-posts-table");
     const tbody = table.tBodies[0];
     for (const dbResult of results) {
@@ -1034,9 +1064,19 @@ function populateSettings()
     document.querySelector("#tag-timer-setting-pause-unfocus").checked = readSetting("pauseOnUnfocus") === "true";
 }
 
-function populateModal(results)
+async function populateModal()
 {
-    populateStats(results);
+    const resultsTotal = await gDB.listResults();
+
+    if (resultsTotal.length == 0) {
+        document.querySelector("#tag-timer-modal-stats-inner").style.display = "none";
+        document.querySelector("#tag-timer-modal-stats-empty").style.display = "block";
+    } else {
+        document.querySelector("#tag-timer-total-results").innerText = resultsTotal.length;
+        populateStatsTable(resultsTotal);
+        populateRecentStats();
+        populateStatsSection(resultsTotal, "total-time", "avg-speed", "avg-time", "fastest-time", "slowest-time");
+    }
     populateSettings();
 }
 
@@ -1044,8 +1084,7 @@ async function mainProfilePage()
 {
     buildModal();
     await gDB.init();
-    const results = await gDB.listResults();
-    populateModal(results);
+    await populateModal();
 }
 
 // ===================================================
