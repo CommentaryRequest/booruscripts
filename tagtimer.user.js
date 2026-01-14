@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         tag timer
 // @namespace    Daniel Booru
-// @version      1.1
+// @version      1.1.1
 // @description  See how fast you tag your danbooru uploads!
 // @author       Commentary Request
 // @match        *://danbooru.donmai.us/uploads/*
@@ -58,7 +58,7 @@ const PROFILE_USER_LINK = document.querySelector("h1 a.user");
 const UPLOAD_PAGE_REGEX = /\/uploads\/\d+(\/assets\/\d+)?/;
 const DB_NAME = "boorutagtimer";
 //const DB_NAME = "pisstest";
-const ENABLE_DEBUG_LOG = false;
+const ENABLE_DEBUG_LOG = true;
 const DESTROY_TEMP_SAVE = true; // Only leave this off for debugging
 const DEFAULT_SETTINGS = {
     check1up: "true",
@@ -935,6 +935,7 @@ async function populateRecentStats()
 {
     const resultsRecent = await gDB.listResults(await recentPostId(document.querySelector("#tag-timer-recent-days").value));
     populateStatsSection(resultsRecent, "total-time-recent", "avg-speed-recent", "avg-time-recent", "fastest-recent-time", "slowest-recent-time");
+    Danbooru.Post.initialize_links();
 }
 
 function buildModal()
