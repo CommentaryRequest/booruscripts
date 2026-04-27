@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ai check button
 // @namespace    http://tampermonkey.net/
-// @version      2026-04-24
+// @version      2
 // @description  in the modqueue
 // @author       commentar reqeust
 // @match        https://danbooru.donmai.us/modqueue*
@@ -44,7 +44,7 @@ function check(e, preview)
                     let aiGen = false;
                     let aiAssist = false;
                     for (const post of resp) {
-                        if (post.tag_string_meta.includes("ai-generated")) {
+                        if (post.tag_string_meta.includes("ai-generated") && !post.tag_string_meta.includes("ai-generated_background")) {
                             aiGen = true;
                             break;
                         } else if (post.tag_string_meta.includes("ai-assisted") && !post.tag_string_meta.includes("ai-generated_background")) {
