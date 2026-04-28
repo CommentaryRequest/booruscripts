@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         ai check button
+// @name         mod queue utils
 // @namespace    http://tampermonkey.net/
 // @version      2
 // @description  in the modqueue
@@ -13,6 +13,20 @@
  $
  Danbooru
 */
+
+//////////////////////////////////////////////////
+// util
+//////////////////////////////////////////////////
+
+function iterate(callback)
+{
+    const previews = document.querySelectorAll(".mod-queue-preview");
+    previews.forEach(p => callback(p));
+}
+
+//////////////////////////////////////////////////
+// ai check button
+//////////////////////////////////////////////////
 
 function resetButton(button)
 {
@@ -74,12 +88,9 @@ function check(e, preview)
     });
 }
 
-(function()
- {
-    'use strict';
-
-    const previews = document.querySelectorAll(".mod-queue-preview");
-    previews.forEach(p => {
+function aiCheckButton()
+{
+    iterate(p => {
         const d = p.querySelector("div.flex-col div.gap-1");
         const button = document.createElement("a");
         button.classList.add("button-primary", "button-xs", "chip-yellow");
@@ -87,4 +98,74 @@ function check(e, preview)
         button.addEventListener("click", e => check(e, p));
         d.appendChild(button);
     });
+}
+
+//////////////////////////////////////////////////
+// more tags highlight
+//////////////////////////////////////////////////
+
+// highlight in red
+const WARN_TAGS = [
+    "third-party_source"
+];
+
+// blue
+const OK_TAGS = [
+    "official_art", "game_cg"
+];
+
+function humanizeTagName(tag)
+{
+    const tagSplit = tag.split("_");
+    let parts = [];
+    tagSplit.forEach(s => {
+        parts.push(s.charAt(0).toUpperCase() + s.slice(1));
+    });
+    return parts.join(" ");
+}
+
+function createTagElement(tag)
+{
+    const span = document.createElement("span");
+    span.innerText = humanizeTagName(tag);
+    const classname = WARN_TAGS.includes(tag) ? "bg:error-color" : "bg:primary-color";
+    span.classList.add(classname, "inline-block", "rounded", "px-2", "mb-1", "text-inverse");
+    return span;
+}
+
+function getHighlightedTags(p)
+{
+    const tagString = p.dataset.tags;
+    const tags = tagString.split(" ");
+    let h = [];
+    tags.forEach(tag => {
+        if (WARN_TAGS.includes(tag) || OK_TAGS.includes(tag)) {
+            h.push(tag);
+        }
+    });
+    return h;
+}
+
+function moreTagsHighlight()
+{
+    iterate(p => {
+        const d = p.querySelector("div.flex-col div.text-center");
+        const highlightedTags = getHighlightedTags(p);
+        highlightedTags.forEach(tag => {
+            d.appendChild(createTagElement(tag));
+            d.appendChild(document.createTextNode(" "));
+        });
+    });
+}
+
+//////////////////////////////////////////////////
+// main
+//////////////////////////////////////////////////
+
+(function()
+ {
+    'use strict';
+
+    aiCheckButton();
+    moreTagsHighlight();
 })();
