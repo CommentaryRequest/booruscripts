@@ -128,7 +128,7 @@ const WARN_TAGS = [
 
 // blue
 const OK_TAGS = [
-    "official_art", "game_cg"
+    "official_art", "game_asset"
 ];
 
 function humanizeTagName(tag)
