@@ -6,6 +6,8 @@
 // @author       commentar reqeust
 // @match        https://danbooru.donmai.us/modqueue*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=donmai.us
+// @updateURL    https://github.com/CommentaryRequest/booruscripts/raw/refs/heads/main/modqueueutils.user.js
+// @downloadURL  https://github.com/CommentaryRequest/booruscripts/raw/refs/heads/main/modqueueutils.user.js
 // @grant        none
 // ==/UserScript==
 
@@ -40,7 +42,7 @@ function handleError(xhr, status, error)
     Danbooru.error("Network error");
 }
 
-function checkPost(resp)
+function checkPost(resp, approveButton)
 {
     let aiGen = false;
     let aiAssist = false;
@@ -61,9 +63,13 @@ function checkPost(resp)
     } else {
         Danbooru.notice("ok");
     }
+
+    if (aiGen || aiAssist) {
+        approveButton.setAttribute("disabled", "disabled");
+    }
 }
 
-function clickCheck(e, preview)
+function clickCheck(e, preview, approveButton)
 {
     e.target.setAttribute("disabled", "disabled");
     e.target.innerText = "oke wait";
@@ -83,7 +89,7 @@ function clickCheck(e, preview)
                 url: `/posts.json?tags=${arttag}`,
                 method: "GET",
                 success: resp => {
-                    checkPost(resp);
+                    checkPost(resp, approveButton);
                     resetButton(e.target);
                 },
                 error: (xhr, status, error) => {
@@ -104,9 +110,9 @@ function aiCheckButton()
     iterate(p => {
         const d = p.querySelector("div.flex-col div.gap-1");
         const button = document.createElement("a");
-        button.classList.add("button-primary", "button-xs", "chip-yellow");
+        button.classList.add("button-primary", "button-xs");
         button.innerText = "Check";
-        button.addEventListener("click", e => clickCheck(e, p));
+        button.addEventListener("click", e => clickCheck(e, p, d.children[0]));
         d.appendChild(button);
     });
 }
@@ -117,7 +123,7 @@ function aiCheckButton()
 
 // highlight in red
 const WARN_TAGS = [
-    "third-party_source"
+    "third-party_source", "cropped"
 ];
 
 // blue
