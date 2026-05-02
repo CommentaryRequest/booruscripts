@@ -5,6 +5,7 @@
 // @description  in the modqueue
 // @author       commentar reqeust
 // @match        https://danbooru.donmai.us/modqueue*
+// @match        http://127.0.0.1:3000/modqueue*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=donmai.us
 // @updateURL    https://github.com/CommentaryRequest/booruscripts/raw/refs/heads/main/modqueueutils.user.js
 // @downloadURL  https://github.com/CommentaryRequest/booruscripts/raw/refs/heads/main/modqueueutils.user.js
@@ -46,6 +47,7 @@ function checkPost(resp, approveButton)
 {
     let aiGen = false;
     let aiAssist = false;
+    let hasActive = false;
     for (const post of resp) {
         if (post.tag_string_meta.includes("ai-generated") && !post.tag_string_meta.includes("ai-generated_background")) {
             aiGen = true;
@@ -54,17 +56,22 @@ function checkPost(resp, approveButton)
             aiAssist = true;
             break;
         }
+        if (!post.is_pending && !post.is_flagged && !post.is_deleted) {
+            hasActive = true;
+        }
     }
 
     if (aiGen) {
         Danbooru.error("AI-generated found!");
     } else if (aiAssist) {
         Danbooru.error("AI-assisted found!");
+    } else if (!hasActive) {
+        Danbooru.error("No active posts. Check artist profile to see if they're legit.");
     } else {
         Danbooru.notice("ok");
     }
 
-    if (aiGen || aiAssist) {
+    if (aiGen || aiAssist || !hasActive) {
         approveButton.setAttribute("disabled", "disabled");
     }
 }
