@@ -153,7 +153,7 @@ const WARN_TAGS = [
 
 // blue
 const OK_TAGS = [
-    "official_art", "game_asset"
+    "official_art", "game_asset", "self-datamine", "commissioner_upload", "second-party_source", "scan", "self-scan"
 ];
 
 function humanizeTagName(tag)
