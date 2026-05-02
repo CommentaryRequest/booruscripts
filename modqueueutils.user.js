@@ -4,8 +4,8 @@
 // @version      whatever
 // @description  in the modqueue
 // @author       commentar reqeust
-// @match        https://danbooru.donmai.us/modqueue*
-// @match        http://127.0.0.1:3000/modqueue*
+// @match        *://*.donmai.us/modqueue*
+// @match        *://*.donmai.us/posts*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=donmai.us
 // @updateURL    https://github.com/CommentaryRequest/booruscripts/raw/refs/heads/main/modqueueutils.user.js
 // @downloadURL  https://github.com/CommentaryRequest/booruscripts/raw/refs/heads/main/modqueueutils.user.js
@@ -25,6 +25,24 @@ function iterate(callback)
 {
     const previews = document.querySelectorAll(".mod-queue-preview");
     previews.forEach(p => callback(p));
+}
+
+function isPostsPage()
+{
+    return window.location.pathname.startsWith("/posts");
+}
+
+//////////////////////////////////////////////////
+// safe queue link
+//////////////////////////////////////////////////
+
+function safeQueueLink()
+{
+    const link = document.createElement("a");
+    link.href = "/modqueue?search[tags]=is%3Asfw";
+    link.classList.add("py-1.5", "px-3");
+    link.innerText = "[sfw]";
+    document.querySelector("#subnav-modqueue").after(link);
 }
 
 //////////////////////////////////////////////////
@@ -190,6 +208,10 @@ function moreTagsHighlight()
  {
     'use strict';
 
-    aiCheckButton();
-    moreTagsHighlight();
+    if (isPostsPage()) {
+        safeQueueLink();
+    } else {
+        aiCheckButton();
+        moreTagsHighlight();
+    }
 })();
