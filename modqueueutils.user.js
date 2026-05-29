@@ -200,6 +200,21 @@ function moreTagsHighlight()
     });
 }
 
+function totalCount()
+{
+    const badge = document.createElement("span");
+    const h1 = document.querySelector("#top-content h1");
+
+    const pendingPosts = Number.parseInt(document.querySelector("#sidebar > ul:nth-child(6) > li:nth-child(1) > span:nth-child(2)").innerText);
+    const flaggedPosts = Number.parseInt(document.querySelector("#sidebar > ul:nth-child(6) > li:nth-child(2) > span:nth-child(2)").innerText);
+    const appealedPosts = Number.parseInt(document.querySelector("#sidebar > ul:nth-child(6) > li:nth-child(3) > span:nth-child(2)").innerText);
+
+    badge.classList.add("badge-blue");
+    badge.innerText = pendingPosts + flaggedPosts + appealedPosts;
+    h1.appendChild(document.createTextNode(" "));
+    h1.appendChild(badge);
+}
+
 //////////////////////////////////////////////////
 // main
 //////////////////////////////////////////////////
@@ -211,6 +226,7 @@ function moreTagsHighlight()
     if (isPostsPage()) {
         safeQueueLink();
     } else {
+        totalCount();
         aiCheckButton();
         moreTagsHighlight();
     }
