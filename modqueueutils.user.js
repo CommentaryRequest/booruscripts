@@ -216,6 +216,16 @@ function totalCount()
 }
 
 //////////////////////////////////////////////////
+// q search shortcut
+//////////////////////////////////////////////////
+
+function searchShortcut()
+{
+    document.querySelector("#search_tags").dataset.shortcut = "q";
+    Danbooru.Shortcuts.initialize();
+}
+
+//////////////////////////////////////////////////
 // main
 //////////////////////////////////////////////////
 
@@ -229,5 +239,6 @@ function totalCount()
         totalCount();
         aiCheckButton();
         moreTagsHighlight();
+        searchShortcut();
     }
 })();
