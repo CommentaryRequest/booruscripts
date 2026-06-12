@@ -148,7 +148,7 @@ function aiCheckButton()
 
 // highlight in red
 const WARN_TAGS = [
-    "third-party_source", "cropped"
+    "third-party_source", "cropped", "pixel-perfect_dupliacte", "self-upload"
 ];
 
 // blue
