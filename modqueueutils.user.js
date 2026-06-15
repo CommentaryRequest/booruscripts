@@ -1,11 +1,12 @@
 // ==UserScript==
 // @name         mod queue utils
 // @namespace    http://tampermonkey.net/
-// @version      whatever
+// @version      13
 // @description  in the modqueue
 // @author       commentar reqeust
 // @match        *://*.donmai.us/modqueue*
 // @match        *://*.donmai.us/posts*
+// @match        *://*.donmai.us/
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=donmai.us
 // @updateURL    https://github.com/CommentaryRequest/booruscripts/raw/refs/heads/main/modqueueutils.user.js
 // @downloadURL  https://github.com/CommentaryRequest/booruscripts/raw/refs/heads/main/modqueueutils.user.js
@@ -29,7 +30,7 @@ function iterate(callback)
 
 function isPostsPage()
 {
-    return window.location.pathname.startsWith("/posts");
+    return Array.from(document.body.classList).includes("c-posts");
 }
 
 //////////////////////////////////////////////////
@@ -226,6 +227,16 @@ function searchShortcut()
 }
 
 //////////////////////////////////////////////////
+// m queue shortcut
+//////////////////////////////////////////////////
+
+function modqueueShortcut()
+{
+    document.querySelector("#subnav-modqueue").dataset.shortcut = "m";
+    Danbooru.Shortcuts.initialize();
+}
+
+//////////////////////////////////////////////////
 // main
 //////////////////////////////////////////////////
 
@@ -235,6 +246,7 @@ function searchShortcut()
 
     if (isPostsPage()) {
         safeQueueLink();
+        modqueueShortcut();
     } else {
         totalCount();
         aiCheckButton();
