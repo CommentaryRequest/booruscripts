@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         mod queue utils
 // @namespace    http://tampermonkey.net/
-// @version      13
+// @version      15
 // @description  in the modqueue
 // @author       commentar reqeust
 // @match        *://*.donmai.us/modqueue*
@@ -149,7 +149,7 @@ function aiCheckButton()
 
 // highlight in red
 const WARN_TAGS = [
-    "third-party_source", "cropped", "pixel-perfect_duplicate", "self-upload"
+    "third-party_source", "cropped", "pixel-perfect_duplicate", "self-upload", "koikatsu_(medium)"
 ];
 
 // blue
