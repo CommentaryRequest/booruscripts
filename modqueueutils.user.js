@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         mod queue utils
 // @namespace    http://tampermonkey.net/
-// @version      15
+// @version      16
 // @description  in the modqueue
 // @author       commentar reqeust
 // @match        *://*.donmai.us/modqueue*
@@ -237,6 +237,18 @@ function modqueueShortcut()
 }
 
 //////////////////////////////////////////////////
+// move the search box to the top of the queu on phone
+//////////////////////////////////////////////////
+function mobileSearchMove()
+{
+    if (window.matchMedia("(max-width: 768px)").matches) {
+        const topContent = document.querySelector("#top-content");
+        topContent.appendChild(document.querySelector("#sidebar h2"));
+        topContent.appendChild(document.querySelector(".search-form"));
+    }
+}
+
+//////////////////////////////////////////////////
 // main
 //////////////////////////////////////////////////
 
@@ -252,5 +264,6 @@ function modqueueShortcut()
         aiCheckButton();
         moreTagsHighlight();
         searchShortcut();
+        mobileSearchMove();
     }
 })();
