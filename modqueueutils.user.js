@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         mod queue utils
 // @namespace    http://tampermonkey.net/
-// @version      17
+// @version      18
 // @description  in the modqueue
 // @author       commentar reqeust
 // @match        *://*.donmai.us/modqueue*
@@ -56,7 +56,7 @@ function getBadgeContainer(p)
 function safeQueueLink()
 {
     const link = document.createElement("a");
-    link.href = "/modqueue?search[tags]=is%3Asfw";
+    link.href = "/modqueue?search[tags]=is%3Asfw&mode=" + localStorage.getItem("mqu_view");
     link.classList.add("py-1.5", "px-3");
     link.innerText = "[sfw]";
     document.querySelector("#subnav-modqueue").after(link);
@@ -312,6 +312,38 @@ function resolutionWarning()
 }
 
 //////////////////////////////////////////////////
+// toggle list/grid queue
+//////////////////////////////////////////////////
+
+function viewToggleModify()
+{
+    document.querySelector("#subnav-modqueue").href = "/modqueue?mode=" + localStorage.getItem("mqu_view");
+}
+
+function viewToggleChange(ev)
+{
+    localStorage.setItem("mqu_view", ev.target.value);
+}
+
+function viewToggleShow()
+{
+    const sidebar = document.querySelector("#sidebar");
+
+    const container = document.createElement("div");
+    container.classList.add("card", "p-2");
+    container.appendChild(document.createTextNode("Default mode: "));
+
+    const select = document.createElement("select");
+    select.add(new Option("List", "list"));
+    select.add(new Option("Grid", "gallery"));
+    select.value = localStorage.getItem("mqu_view");
+    select.addEventListener("change", viewToggleChange);
+    container.appendChild(select);
+
+    sidebar.appendChild(container);
+}
+
+//////////////////////////////////////////////////
 // main
 //////////////////////////////////////////////////
 
@@ -322,6 +354,7 @@ function resolutionWarning()
     if (isPostsPage()) {
         safeQueueLink();
         modqueueShortcut();
+        viewToggleModify();
     } else {
         totalCount();
         aiCheckButton();
@@ -329,5 +362,6 @@ function resolutionWarning()
         searchShortcut();
         mobileSearchMove();
         resolutionWarning();
+        viewToggleShow();
     }
 })();
