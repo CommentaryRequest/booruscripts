@@ -1,12 +1,15 @@
 // ==UserScript==
 // @name         mod queue utils
 // @namespace    http://tampermonkey.net/
-// @version      16
+// @version      17
 // @description  in the modqueue
 // @author       commentar reqeust
 // @match        *://*.donmai.us/modqueue*
 // @match        *://*.donmai.us/posts*
 // @match        *://*.donmai.us/
+// @match        *://127.0.0.1:3000/modqueue*
+// @match        *://127.0.0.1:3000/posts*
+// @match        *://127.0.0.1:3000/
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=donmai.us
 // @updateURL    https://github.com/CommentaryRequest/booruscripts/raw/refs/heads/main/modqueueutils.user.js
 // @downloadURL  https://github.com/CommentaryRequest/booruscripts/raw/refs/heads/main/modqueueutils.user.js
@@ -24,13 +27,26 @@
 
 function iterate(callback)
 {
-    const previews = document.querySelectorAll(".mod-queue-preview");
+    const previews = document.querySelectorAll("article.mod-queue-preview");
     previews.forEach(p => callback(p));
 }
 
 function isPostsPage()
 {
     return Array.from(document.body.classList).includes("c-posts");
+}
+
+function createQueueBadge(className, tag)
+{
+    const span = document.createElement("span");
+    span.innerText = humanizeTagName(tag);
+    span.classList.add(className, "inline-block", "rounded", "px-2", "mb-1", "text-inverse");
+    return span;
+}
+
+function getBadgeContainer(p)
+{
+    return p.querySelector("div.flex-col div.text-center");
 }
 
 //////////////////////////////////////////////////
@@ -149,7 +165,7 @@ function aiCheckButton()
 
 // highlight in red
 const WARN_TAGS = [
-    "third-party_source", "cropped", "pixel-perfect_duplicate", "self-upload", "koikatsu_(medium)"
+    "third-party_source", "cropped", "pixel-perfect_duplicate", "self-upload", "koikatsu_(medium)", "lowres"
 ];
 
 // blue
@@ -169,11 +185,7 @@ function humanizeTagName(tag)
 
 function createTagElement(tag)
 {
-    const span = document.createElement("span");
-    span.innerText = humanizeTagName(tag);
-    const classname = WARN_TAGS.includes(tag) ? "bg:error-color" : "bg:primary-color";
-    span.classList.add(classname, "inline-block", "rounded", "px-2", "mb-1", "text-inverse");
-    return span;
+    return WARN_TAGS.includes(tag) ? createQueueBadge("bg:error-color", tag) : createQueueBadge("bg:primary-color", tag);
 }
 
 function getHighlightedTags(p)
@@ -192,7 +204,7 @@ function getHighlightedTags(p)
 function moreTagsHighlight()
 {
     iterate(p => {
-        const d = p.querySelector("div.flex-col div.text-center");
+        const d = getBadgeContainer(p);
         const highlightedTags = getHighlightedTags(p);
         highlightedTags.forEach(tag => {
             d.appendChild(createTagElement(tag));
@@ -242,10 +254,61 @@ function modqueueShortcut()
 function mobileSearchMove()
 {
     if (window.matchMedia("(max-width: 768px)").matches) {
+        // move search bar
         const topContent = document.querySelector("#top-content");
         topContent.appendChild(document.querySelector("#sidebar h2"));
         topContent.appendChild(document.querySelector(".search-form"));
+
+        // move the rest of the sidebar into an expand block
+
+        const expandContainer = document.createElement("div");
+        expandContainer.classList.add("prose");
+        const expand = document.createElement("details");
+        const summary = document.createElement("summary");
+        summary.innerText = "Sidebar";
+        expand.appendChild(summary);
+        expand.appendChild(document.querySelector("#sidebar"));
+        expandContainer.appendChild(expand);
+        topContent.appendChild(expandContainer);
     }
+}
+
+//////////////////////////////////////////////////
+// ai resolution warning
+//////////////////////////////////////////////////
+
+// for each [A, B] checks AxB and BxA
+const RESOLUTIONS = [
+    [832, 1216],
+    [896, 1152],
+    [768, 1344],
+    [640, 1536]
+];
+
+const RESOLUTION_REGEX = /.*, (\d+)x(\d+)/;
+function resolutionMatches(p)
+{
+    const assetLink = p.querySelector(".gap-2 > div > a:nth-child(2)");
+    const matches = assetLink.innerText.match(RESOLUTION_REGEX);
+    const width = matches[1];
+    const height = matches[2];
+    for (const resolution of RESOLUTIONS) {
+        if ((width == resolution[0] && height == resolution[1]) || (width == resolution[1] && height == resolution[0])) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function resolutionWarning()
+{
+    iterate(p => {
+        if (resolutionMatches(p)) {
+            const d = getBadgeContainer(p);
+            d.appendChild(createQueueBadge("bg:error-color", "sus_resolution"));
+            d.appendChild(document.createTextNode(" "));
+        }
+    });
 }
 
 //////////////////////////////////////////////////
@@ -265,5 +328,6 @@ function mobileSearchMove()
         moreTagsHighlight();
         searchShortcut();
         mobileSearchMove();
+        resolutionWarning();
     }
 })();
