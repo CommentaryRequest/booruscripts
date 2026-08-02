@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         mod queue utils
 // @namespace    http://tampermonkey.net/
-// @version      18
+// @version      19
 // @description  in the modqueue
 // @author       commentar reqeust
 // @match        *://*.donmai.us/modqueue*
@@ -49,6 +49,11 @@ function getBadgeContainer(p)
     return p.querySelector("div.flex-col div.text-center");
 }
 
+function getViewMode()
+{
+    return localStorage.getItem("mqu_view") || "gallery";
+}
+
 //////////////////////////////////////////////////
 // safe queue link
 //////////////////////////////////////////////////
@@ -56,7 +61,7 @@ function getBadgeContainer(p)
 function safeQueueLink()
 {
     const link = document.createElement("a");
-    link.href = "/modqueue?search[tags]=is%3Asfw&mode=" + localStorage.getItem("mqu_view");
+    link.href = "/modqueue?search[tags]=is%3Asfw&mode=" + getViewMode();
     link.classList.add("py-1.5", "px-3");
     link.innerText = "[sfw]";
     document.querySelector("#subnav-modqueue").after(link);
@@ -101,7 +106,7 @@ function checkPost(resp, approveButton)
     } else if (aiAssist) {
         Danbooru.error("AI-assisted found!");
     } else if (!hasActive) {
-        Danbooru.error("No active posts. Check artist profile to see if they're legit.");
+        Danbooru.error("No active posts. Check artist profile.");
     } else {
         Danbooru.notice("ok");
     }
@@ -290,6 +295,9 @@ function resolutionMatches(p)
 {
     const assetLink = p.querySelector(".gap-2 > div > a:nth-child(2)");
     const matches = assetLink.innerText.match(RESOLUTION_REGEX);
+    if (!matches) {
+        return false;
+    }
     const width = matches[1];
     const height = matches[2];
     for (const resolution of RESOLUTIONS) {
@@ -317,7 +325,7 @@ function resolutionWarning()
 
 function viewToggleModify()
 {
-    document.querySelector("#subnav-modqueue").href = "/modqueue?mode=" + localStorage.getItem("mqu_view");
+    document.querySelector("#subnav-modqueue").href = "/modqueue?mode=" + getViewMode();
 }
 
 function viewToggleChange(ev)
@@ -336,7 +344,7 @@ function viewToggleShow()
     const select = document.createElement("select");
     select.add(new Option("List", "list"));
     select.add(new Option("Grid", "gallery"));
-    select.value = localStorage.getItem("mqu_view");
+    select.value = getViewMode();
     select.addEventListener("change", viewToggleChange);
     container.appendChild(select);
 
