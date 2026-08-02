@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         mod queue utils
 // @namespace    http://tampermonkey.net/
-// @version      19
+// @version      20
 // @description  in the modqueue
 // @author       commentar reqeust
 // @match        *://*.donmai.us/modqueue*
@@ -116,12 +116,11 @@ function checkPost(resp, approveButton)
     }
 }
 
-function clickCheck(e, preview, approveButton)
+function clickCheck(e, postId, approveButton)
 {
     e.target.setAttribute("disabled", "disabled");
     e.target.innerText = "oke wait";
 
-    const postId = preview.dataset.id;
     $.ajax({
         url: `/posts/${postId}.json`,
         method: "GET",
@@ -152,16 +151,29 @@ function clickCheck(e, preview, approveButton)
     });
 }
 
-function aiCheckButton()
+function addCheckButton(container, postId)
+{
+    const button = document.createElement("a");
+    button.classList.add("button-primary", "button-xs");
+    button.innerText = "Check";
+    button.addEventListener("click", e => clickCheck(e, postId, container.children[0]));
+    container.appendChild(button);
+}
+
+function aiCheckButtonQueue()
 {
     iterate(p => {
         const d = p.querySelector("div.flex-col div.gap-1");
-        const button = document.createElement("a");
-        button.classList.add("button-primary", "button-xs");
-        button.innerText = "Check";
-        button.addEventListener("click", e => clickCheck(e, p, d.children[0]));
-        d.appendChild(button);
+        addCheckButton(d, p.dataset.id);
     });
+}
+
+function aiCheckButtonPost()
+{
+    const container = document.querySelector(".post-notice div.gap-1");
+    if (container) {
+        addCheckButton(container, document.body.dataset.postId);
+    }
 }
 
 //////////////////////////////////////////////////
@@ -363,9 +375,10 @@ function viewToggleShow()
         safeQueueLink();
         modqueueShortcut();
         viewToggleModify();
+        aiCheckButtonPost();
     } else {
         totalCount();
-        aiCheckButton();
+        aiCheckButtonQueue();
         moreTagsHighlight();
         searchShortcut();
         mobileSearchMove();
