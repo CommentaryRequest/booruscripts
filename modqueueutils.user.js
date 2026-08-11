@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         mod queue utils
 // @namespace    http://tampermonkey.net/
-// @version      20
+// @version      21
 // @description  in the modqueue
 // @author       commentar reqeust
 // @match        *://*.donmai.us/modqueue*
@@ -85,16 +85,16 @@ function handleError(xhr, status, error)
 
 function checkPost(resp, approveButton)
 {
-    let aiGen = false;
-    let aiAssist = false;
+    let aiGen = 0;
+    let aiAssist = 0;
     let hasActive = false;
+    const total = resp.length;
     for (const post of resp) {
-        if (post.tag_string_meta.includes("ai-generated") && !post.tag_string_meta.includes("ai-generated_background")) {
-            aiGen = true;
-            break;
-        } else if (post.tag_string_meta.includes("ai-assisted") && !post.tag_string_meta.includes("ai-generated_background")) {
-            aiAssist = true;
-            break;
+        const metatags = post.tag_string_meta.split(" ");
+        if (metatags.includes("ai-generated")) {
+            aiGen++;
+        } else if (metatags.includes("ai-assisted") && !metatags.includes("ai-generated_background")) {
+            aiAssist++;
         }
         if (!post.is_pending && !post.is_flagged && !post.is_deleted) {
             hasActive = true;
@@ -102,9 +102,9 @@ function checkPost(resp, approveButton)
     }
 
     if (aiGen) {
-        Danbooru.error("AI-generated found!");
+        Danbooru.error(`AI-generated found! (${aiGen}/${total})`);
     } else if (aiAssist) {
-        Danbooru.error("AI-assisted found!");
+        Danbooru.error(`AI-assisted found! (${aiAssist}/${total})`);
     } else if (!hasActive) {
         Danbooru.error("No active posts. Check artist profile.");
     } else {
