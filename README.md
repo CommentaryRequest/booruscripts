@@ -105,3 +105,9 @@ Adds customizable keyboard shortcuts for quickly switching between the modes in 
 Checks for duplicate uploads on the unposted uploads pages.
 
 * [Install](https://github.com/CommentaryRequest/booruscripts/raw/refs/heads/main/uploadsdupechecker.user.js)
+
+## [Active Uploads](https://github.com/CommentaryRequest/booruscripts/blob/main/activeuploads.user.js)
+
+Shows the number of active uploads and deletion ratio of a user.
+
+* [Install](https://github.com/CommentaryRequest/booruscripts/raw/refs/heads/main/activeuploads.user.js)
