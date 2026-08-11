@@ -93,3 +93,15 @@ Records how long it takes to tag posts, with statistics viewable on your profile
 Shows topic and pool names in dtext links. (e.g. `topic #7713` becomes `topic #7713 (Artist alias request thread)`)
 
 * [Install](https://github.com/CommentaryRequest/booruscripts/raw/refs/heads/main/topicpoolhelper.user.js)
+
+## [Mode Menu Shortcuts](https://github.com/CommentaryRequest/booruscripts/blob/main/modemenushortcuts.user.js)
+
+Adds customizable keyboard shortcuts for quickly switching between the modes in the mode menu.
+
+* [Install](https://github.com/CommentaryRequest/booruscripts/raw/refs/heads/main/modemenushortcuts.user.js)
+
+## [Uploads Dupe Checker](https://github.com/CommentaryRequest/booruscripts/blob/main/uploadsdupechecker.user.js)
+
+Checks for duplicate uploads on the unposted uploads pages.
+
+* [Install](https://github.com/CommentaryRequest/booruscripts/raw/refs/heads/main/uploadsdupechecker.user.js)
