@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Absolute Time
 // @namespace    http://tampermonkey.net/
-// @version      1
+// @version      2
 // @description  Danbooru userscript for displaying absolute time in places where it's relative.
 // @author       commentary request
 // @match        *://*.donmai.us/*
@@ -14,7 +14,9 @@
 
     const times = document.querySelectorAll("time");
     times.forEach(time => {
-        const date = time.title;
-        time.innerText += " (" + date + ")";
+        if (time.innerText.endsWith("ago")) {
+            const date = time.title;
+            time.innerText += " (" + date + ")";
+        }
     });
 })();
