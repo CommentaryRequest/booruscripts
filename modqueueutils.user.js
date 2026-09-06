@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         mod queue utils
 // @namespace    http://tampermonkey.net/
-// @version      21
+// @version      22
 // @description  in the modqueue
 // @author       commentar reqeust
 // @match        *://*.donmai.us/modqueue*
@@ -182,7 +182,7 @@ function aiCheckButtonPost()
 
 // highlight in red
 const WARN_TAGS = [
-    "third-party_source", "cropped", "pixel-perfect_duplicate", "self-upload", "koikatsu_(medium)", "lowres"
+    "third-party_source", "cropped", "pixel-perfect_duplicate", "self-upload", "koikatsu_(medium)", "lowres", "bad_link"
 ];
 
 // blue
@@ -364,6 +364,33 @@ function viewToggleShow()
 }
 
 //////////////////////////////////////////////////
+// highlight non-web source unless
+//////////////////////////////////////////////////
+
+const NON_WEB_SOURCE_ALLOWED = ["commissioner_upload", "self-upload", "game_asset", "self-scan"];
+
+function nwsHighlight()
+{
+    iterate(p => {
+        const d = getBadgeContainer(p);
+        const tagString = p.dataset.tags;
+        const tags = tagString.split(" ");
+        if (tags.includes("non-web_source")) {
+            let highlight = true;
+            NON_WEB_SOURCE_ALLOWED.forEach(tag => {
+                if (tags.includes(tag)) {
+                    highlight = false;
+                }
+            });
+
+            if (highlight) {
+                d.appendChild(createQueueBadge("bg:error-color", "non-web_source"));
+            }
+        }
+    });
+}
+
+//////////////////////////////////////////////////
 // main
 //////////////////////////////////////////////////
 
@@ -380,6 +407,7 @@ function viewToggleShow()
         totalCount();
         aiCheckButtonQueue();
         moreTagsHighlight();
+        nwsHighlight();
         searchShortcut();
         mobileSearchMove();
         resolutionWarning();
