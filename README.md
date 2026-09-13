@@ -111,3 +111,9 @@ Checks for duplicate uploads on the unposted uploads pages.
 Shows the number of active uploads and deletion ratio of a user.
 
 * [Install](https://github.com/CommentaryRequest/booruscripts/raw/refs/heads/main/activeuploads.user.js)
+
+## [Copy Post ID](https://github.com/CommentaryRequest/booruscripts/blob/main/copypostid.user.js)
+
+Adds a link to copy the post ID of a post.
+
+* [Install](https://github.com/CommentaryRequest/booruscripts/raw/refs/heads/main/copypostid.user.js)
