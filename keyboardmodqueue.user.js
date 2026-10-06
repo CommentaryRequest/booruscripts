@@ -13,7 +13,7 @@
 // @run-at       document-idle
 // ==/UserScript==
 
-const DEBUG_MODE = true;
+const DEBUG_MODE = false;
 const BLACKLIST_TEXT_SELECTOR = 'span[x-text="blacklist.blacklistedPostCount"]';
 
 /////////////////////////////////////////////////////////////
