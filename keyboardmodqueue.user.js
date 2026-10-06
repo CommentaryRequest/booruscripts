@@ -6,6 +6,8 @@
 // @author       commentary request
 // @match        *://127.0.0.1:3000/modqueue*
 // @match        *://*.donmai.us/modqueue*
+// @updateURL    https://github.com/CommentaryRequest/booruscripts/raw/refs/heads/main/keyboardmodqueue.user.js
+// @downloadURL  https://github.com/CommentaryRequest/booruscripts/raw/refs/heads/main/keyboardmodqueue.user.js
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=donmai.us
 // @grant        GM_addStyle
 // @run-at       document-idle
