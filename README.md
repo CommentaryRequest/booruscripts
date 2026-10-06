@@ -26,19 +26,19 @@ Replaces abbreviated post counts in tag lists with their full count.
 
 * [Install](https://github.com/CommentaryRequest/booruscripts/raw/refs/heads/main/expandpostcounts.user.js)
 
-## [Custom Tag Count](https://github.com/CommentaryRequest/booruscripts/raw/refs/heads/main/customtagcount.user.js)
+## [Custom Tag Count](https://github.com/CommentaryRequest/booruscripts/blob/main/customtagcount.user.js)
 
 Adds a custom, colored tag count above the tag list.
 
 * [Install](https://github.com/CommentaryRequest/booruscripts/raw/refs/heads/main/customtagcount.user.js)
 
-## [Favorite on Upload Page](https://github.com/CommentaryRequest/booruscripts/raw/refs/heads/main/favuploadpage.user.js)
+## [Favorite on Upload Page](https://github.com/CommentaryRequest/booruscripts/blob/main/favuploadpage.user.js)
 
 Adds `fav:Username` into the tag list on upload, unless your name is RommentaryCequest.
 
 * [Install](https://github.com/CommentaryRequest/booruscripts/raw/refs/heads/main/favuploadpage.user.js)
 
-## [Mod Queue Utils](github.com/CommentaryRequest/booruscripts/blob/main/modqueueutils.user.js)
+## [Mod Queue Utils](https://github.com/CommentaryRequest/booruscripts/blob/main/modqueueutils.user.js)
 
 Adds various utilities to the moderation queue:
 
@@ -51,6 +51,16 @@ Adds various utilities to the moderation queue:
 * Moves the search bar and sidebar to the top of the page on mobile
 
 * [Install](https://github.com/CommentaryRequest/booruscripts/raw/refs/heads/main/modqueueutils.user.js)
+
+## [Keyboard Modqueue](https://github.com/CommentaryRequest/booruscripts/blob/main/keyboardmodqueue.user.js)
+
+Adds keyboard input for selecting, approving, skipping and rejecting posts in the moderation queue without using the mouse.
+Configure keyboard shortcuts at the top of the script.
+
+Default keybinds: A/D to move selection, K to approve, L to skip, ; to check (requires Mod Queue Utils), I to reject,
+O to open post in new tab.
+
+* [Install](https://github.com/CommentaryRequest/booruscripts/raw/refs/heads/main/keyboardmodqueue.user.js)
 
 ## [Pool Order on Post Page](https://github.com/CommentaryRequest/booruscripts/blob/main/poolorder.user.js)
 
