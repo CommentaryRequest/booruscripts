@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Keyboard Modqueue
 // @namespace    http://tampermonkey.net/
-// @version      1
+// @version      2
 // @description  Adds an entirely keyboard-based input to the moderation queue.
 // @author       commentary request
 // @match        *://127.0.0.1:3000/modqueue*
@@ -37,7 +37,7 @@ const KEY_OPEN = "o";
 
 const CSS = `
 .kmq-preview-selected {
-    border-color: yellow !important;
+    border-color: magenta !important;
 }
 
 .mod-queue-preview {
@@ -103,6 +103,7 @@ const getVisiblePreviews = () =>
             !p.classList.contains("blacklisted-hidden") &&
             p.checkVisibility()
         );
+const anyVisiblePreviews = () => getVisiblePreviews().length != 0;
 
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 
@@ -118,7 +119,7 @@ const getRejectMenu = () => document.querySelector(".tippy-box .popup-menu-conte
 const getButtonByName = name => [...getSelectedButtons().children].filter(e => e.textContent.trim() == name)[0];
 const getApproveButton = () => getButtonByName("Approve");
 const getSkipButton = () => getButtonByName("Skip");
-const getRejectButton = () => [...getSelectedButtons().children].find(el => el.querySelector("a").textContent.trim() == "Reject").children[0];
+const getRejectButton = () => [...getSelectedButtons().children].find(el => el.querySelector("a")?.textContent.trim() == "Reject").children[0];
 const getCheckButton = () => getButtonByName("Check");
 
 function hidePreview()
@@ -354,6 +355,7 @@ function handleKeyAction(key)
 
 function handleKey(event)
 {
+    if (!anyVisiblePreviews()) return; // Prevent accidental actions on blacklisted/hidden posts
     if (state.isOverlayOpen && state.overlayCallback) state.overlayCallback(event.key);
     else handleKeyAction(event.key);
 }
@@ -374,6 +376,7 @@ function initKeyboard()
     document.addEventListener("keydown", event => {
         const tag = event.target?.tagName?.toLowerCase();
         if (tag == "textarea" || tag == "input") return;
+        if (event.repeat || event.ctrlKey || event.altKey || event.metaKey) return;
 
         handleKey(event);
     });
